@@ -11,7 +11,7 @@ get_dist_all(taxon, maxrec = 19999, repo = c("gbif"))
 
 \item{maxrec}{Maximum number of records to download.}
 
-\item{repo}{Which data repositor(ies) should be searched. Accepts 'gbif'. Defaults to GBIF.}
+\item{repo}{Which data repositor(ies) should be searched. Accepts 'gbif', 'inat', and/or 'bison'. Defaults to 'gbif'.}
 }
 \description{
 This function requests data from the GBIF database for a single taxon using the GBIF callback API.
