@@ -155,7 +155,7 @@ get_dist_all <- function(taxon, maxrec = 19999, repo=c('gbif')) {
   
   
   #GET BIEN DATA
-  # bien = cbind(1,1,1,1);
+  bien = cbind(1,1,1,1);
   # tryCatch({
   # bien <-
   #   BIEN::BIEN_occurrence_species(
