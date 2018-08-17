@@ -1,3 +1,6 @@
+#' @import wesanderson
+NULL
+
 
 #' Plot PDF curve of given type and variable for single density object.
 #' 
@@ -50,7 +53,7 @@ densplot <- function(dens.ob, var, col = sample(grDevices::colours()), type = ".
 #' Using an object from the cRacle::dens_obj() function. Plot a series PDF curves in a new plot window.
 #' @param dens.oblist An object derived from the cRacle::dens_obj() function.
 #' @param var A character string that matches one of the layer names in the source raster object.
-#' @param col A color vector of the same length as the dens.oblist object. Default is 'grDevices::heat.colors(length(dens.oblist))'.
+#' @param col A color vector of the same length as the dens.oblist object. Default is 'wes_palette("FantasticFox1")'.
 #' @param type A character string of value either ".kde" for a Kernel Density Estimator curve, or ".gauss" for a Gaussian (normal) curve. All other values will result in errors.
 #' @param l.pos  Legend position. Recommend 'topleft' or 'topright'. Default is 'topleft'.
 #' @param l.cex  cex setting for legend. Default is 0.8.
@@ -65,7 +68,7 @@ densplot <- function(dens.ob, var, col = sample(grDevices::colours()), type = ".
 #' multiplot(dens.list.raw, names(climondbioclim[[1]]));
 #' }
 
-multiplot <- function(dens.oblist, var, col = grDevices::heat.colors(length(dens.oblist)), type = ".kde", l.pos = 'topleft', l.cex = 0.8, w = FALSE){ 
+multiplot <- function(dens.oblist, var, col = wes_palette("FantasticFox1"), type = ".kde", l.pos = 'topleft', l.cex = 0.8, w = FALSE){ 
   arr.dens.ob = dens.oblist;
   varx <- paste(var, "x", sep = ".");
   vart = paste(var, type, sep = '');

@@ -5,8 +5,8 @@
 \title{Download distribution data, filter, and merge with climate or environmental}
 \usage{
 getextr(x, clim = clim, maxrec = 500, schema = "flat",
-  rm.outlier = FALSE, alpha = 0.01, factor = 4, nmin = 5,
-  parallel = FALSE, nclus = 4)
+  repo = c("gbif"), rm.outlier = FALSE, alpha = 0.01, factor = 4,
+  nmin = 5, parallel = FALSE, nclus = 4)
 }
 \arguments{
 \item{x}{A taxon name or list of taxon names. It is sometimes good to 
@@ -17,6 +17,8 @@ test these on the cRacle::get_gbif() function first.}
 \item{maxrec}{Maximum number of records to download.}
 
 \item{schema}{To be passed to cRacle::extraction}
+
+\item{repo}{Pass to get_dist_all}
 
 \item{rm.outlier}{To be passed to cRacle::extraction}
 

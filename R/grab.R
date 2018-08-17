@@ -143,13 +143,15 @@ get_dist_all <- function(taxon, maxrec = 19999, repo=c('gbif')) {
   ###GET DATA
   #GET GBIF DATA direct
   gbif = cbind(1,1,1,1);
+  if('gbif' %in% repo){
   tryCatch({
-      gbif <- gbif_get(taxon, maxrec = 199999)
+      gbif <- gbif_get(taxon, maxrec = maxrec)
   },
   error = function(cond) {
     message(paste("GBIF", cond))
     return(NULL)
   })
+  }
   
   
   #GET BIEN DATA
@@ -169,6 +171,7 @@ get_dist_all <- function(taxon, maxrec = 19999, repo=c('gbif')) {
   
   #get bison data
   bison = cbind(1,1,1,1)
+  if('bisont' %in% repo){
   tryCatch({
     bison <- cRacle::get_bison(taxon, maxrec = maxrec)
     
@@ -177,9 +180,11 @@ get_dist_all <- function(taxon, maxrec = 19999, repo=c('gbif')) {
     message(paste("BISON", cond))
     return(NULL)
   })
+  }
   
   #get inaturalist data **research grade only**
   inatr = cbind(1,1,1,1);
+  if('inat' %in% repo){
   tryCatch({
     inatr = cRacle::inat(taxon, maxrec = maxrec)
   }, 
@@ -187,6 +192,7 @@ get_dist_all <- function(taxon, maxrec = 19999, repo=c('gbif')) {
     message(paste("inat", cond))
     return(NULL)
   })
+  }
   
   
   cnames <- c('ind_id', 'tax', 'lat', 'lon')
@@ -249,6 +255,7 @@ get_dist_all <- function(taxon, maxrec = 19999, repo=c('gbif')) {
 #' test these on the cRacle::get_gbif() function first.
 #' @param maxrec Maximum number of records to download.
 #' @param clim A raster object of climate or other environmental data to extract from.
+#' @param repo Pass to get_dist_all
 #' @param schema To be passed to cRacle::extraction
 #' @param rm.outlier To be passed to cRacle::extraction
 #' @param factor To be passed to cRacle::extraction
@@ -265,8 +272,8 @@ get_dist_all <- function(taxon, maxrec = 19999, repo=c('gbif')) {
 #' alpha=0.01, factor = 2, nmin = 5, parallel=FALSE, nclus = 4);
 #' }
 #' 
-getextr = function(x, clim = clim, maxrec=500, schema= 'flat', 
-                   rm.outlier = FALSE, alpha=0.01, 
+getextr = function(x, clim = clim, maxrec=500, schema= 'flat', repo=c('gbif'),
+                   rm.outlier = FALSE, alpha=0.01,  
                    factor = 4, nmin = 5, parallel=FALSE, nclus = 4){
   
   clim = clim;
@@ -278,6 +285,7 @@ getextr = function(x, clim = clim, maxrec=500, schema= 'flat',
   nmin = nmin;
   parallel = parallel;
   nclus = nclus;
+  repo=repo;
   
   
   subfun = function(x){
@@ -285,7 +293,7 @@ getextr = function(x, clim = clim, maxrec=500, schema= 'flat',
     for(i in 1:length(x)){
       print(x[i]);
       ex[[i]] = NULL;
-      dat2 = cRacle::gbif_get(x[i], maxrec = maxrec)
+      dat2 = cRacle::get_dist_all(x[i], maxrec = maxrec, repo=repo)
       if(is.null(dat2)){ ex[[i]]=NULL; next; }
       dat2 = stats::na.omit(dat2);
       if(any(is.na(dat2))){ ex[[i]]=NULL; next;}

@@ -1,11 +1,29 @@
-#!/usr/bin/R
+---
+title: "cRacle_BETA"
+author: "Rob Harbert"
+date: "8/17/2018"
+output: html_document
+---
 
-#####
-#Demo CRACLE implementation
-####
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
 
-#for a single locality with the species:
-data(climondbioclim) #packaged data from CliMond for the Eastern US. Should replace with climate grids of your choice
+## Announcing a new R package dedicated to implementing CRACLE for climate estimation from biological community data.
+
+## How to:
+
+First load some climate data:
+
+```{r}
+data(climondbioclim) #prepackaged with cRacle
+#advise:
+#clim = raster::getData('worldclim', var='bio', res=2.5)
+```
+For a list of species:
+
+```{r}
+
 sp_list = c(
   "Quercus rubra",
   "Pinus strobus",
@@ -15,14 +33,20 @@ sp_list = c(
   "Toxicodendron radicans"
 )
 
+```
+
+Get data from GBIF.
+```{r}
+
 extr = getextr(
   sp_list,
   climondbioclim,
+  repo='gbif',
   maxrec = 200,
   #Should set higher in practice!
   schema = 'flat',
   factor = 2,
-  #adjust factor to spatially thin. Use a higher number (4 to 8) for spatial grids of 2.5 arcminutes or less.
+  #adjust to spatially thin. Use a higher number (4 to 8) for spatial grids of 2.5 arcminutes or less.
   nmin = 10,
   parallel = FALSE
 )
@@ -44,3 +68,12 @@ multiplot(densall, names(climondbioclim)[[n]])
 addplot(and, names(climondbioclim)[[n]])
 
 abline(v = median(optim$origk[, n]), col = 'green') #Midpoint will be very close to the optimum. Original method of Harbert and Nixon, 2015 returned a top 1% range to introduce some slop
+
+```
+
+## plots 
+```{r pressure, echo=FALSE}
+plot(pressure)
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.

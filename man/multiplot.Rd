@@ -4,16 +4,15 @@
 \alias{multiplot}
 \title{Plot PDF curves of given type and variable for density list object}
 \usage{
-multiplot(dens.oblist, var,
-  col = grDevices::heat.colors(length(dens.oblist)), type = ".kde",
-  l.pos = "topleft", l.cex = 0.8, w = FALSE)
+multiplot(dens.oblist, var, col = wes_palette("FantasticFox1"),
+  type = ".kde", l.pos = "topleft", l.cex = 0.8, w = FALSE)
 }
 \arguments{
 \item{dens.oblist}{An object derived from the cRacle::dens_obj() function.}
 
 \item{var}{A character string that matches one of the layer names in the source raster object.}
 
-\item{col}{A color vector of the same length as the dens.oblist object. Default is 'grDevices::heat.colors(length(dens.oblist))'.}
+\item{col}{A color vector of the same length as the dens.oblist object. Default is 'wes_palette("FantasticFox1")'.}
 
 \item{type}{A character string of value either ".kde" for a Kernel Density Estimator curve, or ".gauss" for a Gaussian (normal) curve. All other values will result in errors.}
 
