@@ -9,7 +9,9 @@ gbif_get(taxon, maxrec = 2e+05)
 \arguments{
 \item{taxon}{A string of the form 'genus species' or 'genus'.}
 
-\item{maxrec}{Maximum number of records to download.}
+\item{maxrec}{Maximum number of records to download. 
+Under 200 really doesn't mean anything because a single page (200) 
+of results is returned and all records are kept.}
 }
 \description{
 This function requests data from the GBIF database for a single taxon using the GBIF callback API.

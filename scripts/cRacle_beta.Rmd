@@ -7,6 +7,7 @@ output: html_document
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+library(cRacle)
 ```
 
 ## Announcing a new R package dedicated to implementing CRACLE for climate estimation from biological community data.
@@ -41,28 +42,44 @@ Get data from GBIF.
 extr = getextr(
   sp_list,
   climondbioclim,
-  repo='gbif',
+  repo=c('gbif', 'inat'),
   maxrec = 200,
-  #Should set higher in practice!
+  #Should set higher in practice! 
   schema = 'flat',
   factor = 2,
   #adjust to spatially thin. Use a higher number (4 to 8) for spatial grids of 2.5 arcminutes or less.
   nmin = 10,
   parallel = FALSE
 )
+```
 
+Then build probability distributions for each taxon/variable pair.
+
+```{r}
 densall = dens_obj(extr,
                    climondbioclim,
                    manip = 'condi',
                    kern = 'gaussian',
                    bg.n = 40) #consider using parallel=TRUE if bg.n>500
+```
 
+Then calculate the intersect of all taxa for each variable. This is the Coexistence Likelihood Estimation.
+
+```{r}
 and = and_fun(densall)
+
+```
+
+And find the optima for these joint likelihood functions.
+```{r}
 optim = get_optim(and)
 
 print(optim$origk) #As implemented in Harbert and Nixon, 2015
 print(optim$conintkde) #with 95% confidence intervals on the likelihood distribution.
+```
 
+And visualize (for Mean Annual Temperature):
+```{r multiplot, echo =TRUE}
 n = 1
 multiplot(densall, names(climondbioclim)[[n]])
 addplot(and, names(climondbioclim)[[n]])
@@ -70,10 +87,3 @@ addplot(and, names(climondbioclim)[[n]])
 abline(v = median(optim$origk[, n]), col = 'green') #Midpoint will be very close to the optimum. Original method of Harbert and Nixon, 2015 returned a top 1% range to introduce some slop
 
 ```
-
-## plots 
-```{r pressure, echo=FALSE}
-plot(pressure)
-```
-
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.

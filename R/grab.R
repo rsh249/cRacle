@@ -8,7 +8,9 @@ NULL
 #' This function requests data from the GBIF database for a single taxon using the GBIF callback API.
 #'
 #' @param taxon A string of the form 'genus species' or 'genus'.
-#' @param maxrec Maximum number of records to download.
+#' @param maxrec Maximum number of records to download. 
+#' Under 200 really doesn't mean anything because a single page (200) 
+#' of results is returned and all records are kept.
 #' @export
 #' @examples \dontrun{
 #' abies <- gbif_get('Abies');

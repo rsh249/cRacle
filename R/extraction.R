@@ -5,6 +5,7 @@
 #' @import doSNOW
 #' @import raster
 #' @import plyr
+#' @useDynLib cRacle
 NULL
 
 
