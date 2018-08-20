@@ -74,15 +74,15 @@ The settings below are good for many applications:
 
 ```{r}
 #Before that we need to crop the clim object to our study area:
-clim = crop(clim, extent(c(boundary[1]-5, boundary[3]+5, boundary[2]-5, boundary[4]+5)))
+clim = crop(clim, extent(c(boundary[2]-5, boundary[4]+5,boundary[1]-5, boundary[3]+5)))
 extr = getextr(
   sp_bi,
   clim,
   repo=c('gbif', 'inat'), #query GBIF and iNaturalist together
-  maxrec = 500, #Should set higher in practice! 
+  maxrec = 900, #Should set higher in practice! 
   schema = 'flat', #Spatial thinning by grid
-  factor = 2, #merge grid to 2x (5 arcmin in example) for thinning
-  nmin = 10, #minimum number of occurrence records required per species
+  factor = 4, #merge grid to 2x (5 arcmin in example) for thinning
+  nmin = 15, #minimum number of occurrence records required per species
   parallel = FALSE #if you have parallel architecture you can take advantage here
 )
 ```
@@ -91,7 +91,7 @@ extr = getextr(
 
 ```{r}
 densall = dens_obj(extr,
-                   climondbioclim,
+                   clim,
                    manip = 'condi',
                    kern = 'gaussian',
                    bg.n = 40) #consider using parallel=TRUE if bg.n>500
@@ -120,8 +120,8 @@ multiplot() plots the object created by dens_obj(). addplot() plots a single ele
 
 ```{r multiplot, echo =TRUE}
 n = 1
-multiplot(densall, names(climondbioclim)[[n]])
-addplot(and, names(climondbioclim)[[n]])
+multiplot(densall, names(clim)[[n]], l.cex=0.3)
+addplot(and, names(clim)[[n]], col = 'black')
 
 abline(v = median(optim$origk[, n]), col = 'green') #Midpoint will be very close to the optimum. Original method of Harbert and Nixon, 2015 returned a top 1% range to introduce some slop
 
@@ -133,11 +133,92 @@ To see how well we have done with cRacle let's have compare to the WorldClim mod
 
 ### Get NOAA data
 
+```{r}
+require(rnoaa);
+require(ggplot2);
+station_data <- ghcnd_stations() # Takes a while to run (minutes)
+
+lat_lon_df <- data.frame(id = 'locality',
+                         latitude = c(site.coord[1]),
+                         longitude = c(site.coord[2]))
+nearby_stations <-  meteo_nearby_stations(lat_lon_df = lat_lon_df, 
+                                          #var = c('TMIN', 'TMAX', 'TAVG', 'PRCP'),
+                                          station_data = station_data, 
+                                          radius = 10)
+monitors <- nearby_stations$locality$id
+
+all_monitors_clean <- meteo_pull_monitors(monitors) #get GHCN Data for each nearby station.
+
+
+summary(all_monitors_clean);
+#plot e.g.,
+#plot(all_monitors_clean$date, (all_monitors_clean$tmax))
+
+all_monitors_clean = all_monitors_clean[order(all_monitors_clean$date),]
+coverage=meteo_coverage(all_monitors_clean)
+
+autoplot(coverage)
+
+
+best_cover = coverage[which(coverage$total_obs == max(coverage$total_obs)),]$id;
+monitors_clean = subset(all_monitors_clean, all_monitors_clean$id == best_cover)
+dates = monitors_clean$date
+datestr = strsplit(as.character(dates), '-')
+year = list();
+for(i in 1:length(datestr)){
+  year[[i]] = datestr[[i]][1];
+}
+year = unlist(year)
+tmean = (monitors_clean$tmax + monitors_clean$tmin)/2
+
+plot(year, tmean/10, main="Daily temperatures (C)")
+
+
+#summarize mean temperature profile
+year.tmean = cbind(as.numeric(year), tmean/10)
+m = vector(); z = 1;
+for(i in min(year.tmean[,1]):(max(year.tmean[,1]))){
+  m[z] = mean(as.numeric(year.tmean[which(year.tmean[,1] == i), 2]), 
+              na.rm=TRUE)
+  z = z+1;
+}
+
+ghcn.mat = mean(m, na.rm=TRUE) #Mean Annual Temperature
+
+prec = monitors_clean$prcp;
+year.prec = cbind(as.numeric(year), prec)
+p = vector(); z = 1;
+for(i in min(year.prec[,1]):(max(year.prec[,1])-1)){
+  p[z] = sum(as.numeric(year.prec[which(year.prec[,1] == i), 2]), 
+              na.rm=TRUE)
+  z = z+1;
+}
+plot(density(p/10, na.rm=TRUE)) #distribution of precipitation in mm
+
+ghcn.prec = mean(p/10, na.rm=TRUE)
+
+
+```
+
 ### Get WorldClim data for locality
+
+```{r}
+ex = extract(clim, cbind(site.coord[2], site.coord[1])) #extract Worldclim for site
+site.ex = cbind(loc.name, site.coord[2], site.coord[1], ex)
+colnames(site.ex) = c('locality', 'lon', 'lat', names(clim))
+```
+
 
 ### Plot comparison
 
+```{r compplot, echo=TRUE}
+densplot(and, names(clim[[1]]), col = 'black')
+abline(v=median(optim$origk[,1])/10, col='red')
+abline(v=ghcn.mat, col='blue')
+abline(v=as.numeric(site.ex[,names(clim[[1]])])/10, col = 'green')
 
+
+```
 
 
 ### Recap

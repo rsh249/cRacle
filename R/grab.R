@@ -468,7 +468,7 @@ get_bison <- function(taxon, maxrec = 10000) {
     
   }  
   
-  ##Opportunity to provide filtering options her
+  ##Opportunity to provide filtering options here
   ##geo==TRUE
   
   ##fossil==FALSE

@@ -68,7 +68,7 @@ densplot <- function(dens.ob, var, col = sample(grDevices::colours()), type = ".
 #' multiplot(dens.list.raw, names(climondbioclim[[1]]));
 #' }
 
-multiplot <- function(dens.oblist, var, col = wes_palette("FantasticFox1"), type = ".kde", l.pos = 'topleft', l.cex = 0.8, w = FALSE){ 
+multiplot <- function(dens.oblist, var, col = sample(wes_palette("Zissou1", n=99, type = 'continuous'), 9999, replace=T), type = ".kde", l.pos = 'topleft', l.cex = 0.8, w = FALSE){ 
   arr.dens.ob = dens.oblist;
   varx <- paste(var, "x", sep = ".");
   vart = paste(var, type, sep = '');
