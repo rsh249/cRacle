@@ -43,7 +43,6 @@ gbif_get <- function(taxon, maxrec = 200000) {
     round = round + 1
     
     if (is.null(nrow(jsonget$results))) {
-      print("ERR: 11")
       return(NULL)
     } else {
       hold[[round]] = jsonget$results
@@ -214,7 +213,7 @@ get_dist_all <- function(taxon, maxrec = 19999, repo=c('gbif')) {
   } else {
     bison = NA
   }
-  if (nrow(gbif) > 5) {
+  #if (nrow(gbif) > 5) {
     #gbif = gbif[, c('key',
     #                   'genus',
     #                   'specificEpithet',
@@ -223,9 +222,9 @@ get_dist_all <- function(taxon, maxrec = 19999, repo=c('gbif')) {
     #gbif[, 2] = paste(gbif[, 2], gbif[, 3], sep = ' ')
     #gbif = gbif[,-3]
     #colnames(gbif) = cnames
-  } else {
-    gbif = NA
-  }
+  #} else {
+  #  gbif = NA
+  #}
   
   if (nrow(bien) > 5) {
     bien = bien[, c('datasource_id',

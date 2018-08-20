@@ -14,46 +14,80 @@ library(cRacle)
 
 ## How to:
 
-First load some climate data:
+### First load some climate data:
 
 ```{r}
-data(climondbioclim) #prepackaged with cRacle
-#advise:
-#clim = raster::getData('worldclim', var='bio', res=2.5)
-```
-For a list of species:
-
-```{r}
-
-sp_list = c(
-  "Quercus rubra",
-  "Pinus strobus",
-  "Vaccinium angustifolium",
-  "Betula papyrifera",
-  "Rhododendron maximum",
-  "Toxicodendron radicans"
-)
-
+require(raster)
+clim = getData('worldclim', var='bio', res=2.5, path=tempdir())
 ```
 
-Get data from GBIF.
-```{r}
+### For a list of species:
 
+We will query iNaturalist for observed plant species within 20km of a given location. 
+
+```{r}
+require(rinat)
+require(rgbif)
+site.coord = matrix(ncol=2, nrow=1)
+site.coord = c(42.059, -71.081)
+
+loc.name = "Stonehill College"
+
+boundary = c( site.coord[1]-0.005, 
+              site.coord[2]-0.005, 
+              site.coord[1]+0.005, 
+              site.coord[2]+0.005 ) ## Approximately a 500x500m area. Distorted at higher latitudes
+
+
+inatq = get_inat_obs(taxon_name = "Viridiplantae", 
+                               bounds=boundary, maxresults  =5000)
+
+
+
+#filters
+#cultivated?
+inatq = inatq[which(inatq$captive_cultivated=='false'),]
+#research grade
+inatq = inatq[which(inatq$quality_grade=='research'),]
+#positional accuracy
+inatq = inatq[which(inatq$positional_accuracy<200),]
+
+##And query GBIF for same bounds:
+key <- name_backbone(name='',kingdom='plantae')$kingdomKey
+s.gbif = occ_data(kingdomKey = key, geometry=boundary[c(2,1,4,3)], limit=2000)
+
+
+#And MERGE iNaturalist and GBIF obs:
+t_names = unique(c(unique(inatq$scientific_name), 
+                   unique(s.gbif$data$name)))
+sp_bi = t_names[grep(' ', t_names)]
+print(sp_bi)
+
+```
+
+### Get occurrence data for each of those species: 
+
+The cRacle package includes a function that grabs data from GBIF and other databases and references this against a climate raster object (e.g. the WorldClim data we got earlier). Several other preprocessing steps can be opted for at this point including spatial thinning and crude climatic outlier detection.
+
+The settings below are good for many applications:
+
+
+```{r}
+#Before that we need to crop the clim object to our study area:
+clim = crop(clim, extent(c(boundary[1]-5, boundary[3]+5, boundary[2]-5, boundary[4]+5)))
 extr = getextr(
-  sp_list,
-  climondbioclim,
-  repo=c('gbif', 'inat'),
-  maxrec = 200,
-  #Should set higher in practice! 
-  schema = 'flat',
-  factor = 2,
-  #adjust to spatially thin. Use a higher number (4 to 8) for spatial grids of 2.5 arcminutes or less.
-  nmin = 10,
-  parallel = FALSE
+  sp_bi,
+  clim,
+  repo=c('gbif', 'inat'), #query GBIF and iNaturalist together
+  maxrec = 500, #Should set higher in practice! 
+  schema = 'flat', #Spatial thinning by grid
+  factor = 2, #merge grid to 2x (5 arcmin in example) for thinning
+  nmin = 10, #minimum number of occurrence records required per species
+  parallel = FALSE #if you have parallel architecture you can take advantage here
 )
 ```
 
-Then build probability distributions for each taxon/variable pair.
+### Then build probability distributions for each taxon/variable pair.
 
 ```{r}
 densall = dens_obj(extr,
@@ -63,14 +97,16 @@ densall = dens_obj(extr,
                    bg.n = 40) #consider using parallel=TRUE if bg.n>500
 ```
 
-Then calculate the intersect of all taxa for each variable. This is the Coexistence Likelihood Estimation.
+### Then calculate the intersect of all taxa for each variable. 
+
+This is the Coexistence Likelihood Estimation.
 
 ```{r}
 and = and_fun(densall)
 
 ```
 
-And find the optima for these joint likelihood functions.
+### And find the optima for these joint likelihood functions.
 ```{r}
 optim = get_optim(and)
 
@@ -78,7 +114,10 @@ print(optim$origk) #As implemented in Harbert and Nixon, 2015
 print(optim$conintkde) #with 95% confidence intervals on the likelihood distribution.
 ```
 
-And visualize (for Mean Annual Temperature):
+### And visualize (for Mean Annual Temperature):
+
+multiplot() plots the object created by dens_obj(). addplot() plots a single element of dens_obj() (e.g. densall[[1]]) or a similar object created by the and_fun() function.
+
 ```{r multiplot, echo =TRUE}
 n = 1
 multiplot(densall, names(climondbioclim)[[n]])
@@ -87,3 +126,23 @@ addplot(and, names(climondbioclim)[[n]])
 abline(v = median(optim$origk[, n]), col = 'green') #Midpoint will be very close to the optimum. Original method of Harbert and Nixon, 2015 returned a top 1% range to introduce some slop
 
 ```
+
+#cRacle performance
+
+To see how well we have done with cRacle let's have compare to the WorldClim model output as well as a summary of data from nearby weather stations from NOAA.
+
+### Get NOAA data
+
+### Get WorldClim data for locality
+
+### Plot comparison
+
+
+
+
+### Recap
+
+The demonstration code above can be found at the cRacle github page: https://github.com/rsh249/cRacle/scripts/cRacle_beta.Rmd
+
+
+
