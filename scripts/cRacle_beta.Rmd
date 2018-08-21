@@ -79,7 +79,7 @@ extr = getextr(
   sp_bi,
   clim,
   repo=c('gbif', 'inat'), #query GBIF and iNaturalist together
-  maxrec = 900, #Should set higher in practice! 
+  maxrec = 1200, #Should set hi,l/;.....................devgher in practice! 
   schema = 'flat', #Spatial thinning by grid
   factor = 4, #merge grid to 2x (5 arcmin in example) for thinning
   nmin = 15, #minimum number of occurrence records required per species
@@ -94,7 +94,7 @@ densall = dens_obj(extr,
                    clim,
                    manip = 'condi',
                    kern = 'gaussian',
-                   bg.n = 40) #consider using parallel=TRUE if bg.n>500
+                   bg.n = 90) #consider using parallel=TRUE if bg.n>500
 ```
 
 ### Then calculate the intersect of all taxa for each variable. 
@@ -185,19 +185,6 @@ for(i in min(year.tmean[,1]):(max(year.tmean[,1]))){
 
 ghcn.mat = mean(m, na.rm=TRUE) #Mean Annual Temperature
 
-prec = monitors_clean$prcp;
-year.prec = cbind(as.numeric(year), prec)
-p = vector(); z = 1;
-for(i in min(year.prec[,1]):(max(year.prec[,1])-1)){
-  p[z] = sum(as.numeric(year.prec[which(year.prec[,1] == i), 2]), 
-              na.rm=TRUE)
-  z = z+1;
-}
-plot(density(p/10, na.rm=TRUE)) #distribution of precipitation in mm
-
-ghcn.prec = mean(p/10, na.rm=TRUE)
-
-
 ```
 
 ### Get WorldClim data for locality
@@ -213,7 +200,7 @@ colnames(site.ex) = c('locality', 'lon', 'lat', names(clim))
 
 ```{r compplot, echo=TRUE}
 densplot(and, names(clim[[1]]), col = 'black')
-abline(v=median(optim$origk[,1])/10, col='red')
+abline(v=median(optim$origk[,1])/10, col='red', lwd=3)
 abline(v=ghcn.mat, col='blue')
 abline(v=as.numeric(site.ex[,names(clim[[1]])])/10, col = 'green')
 
