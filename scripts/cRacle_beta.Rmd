@@ -23,23 +23,24 @@ clim = getData('worldclim', var='bio', res=2.5, path=tempdir())
 
 ### For a list of species:
 
-We will query iNaturalist for observed plant species within 20km of a given location. 
+We will query iNaturalist and GBIF for observed plant species within ~500m of a given location. 
 
 ```{r}
 require(rinat)
 require(rgbif)
 site.coord = matrix(ncol=2, nrow=1)
-site.coord = c(42.059, -71.081)
 
-loc.name = "Stonehill College"
-
-boundary = c( site.coord[1]-0.005, 
-              site.coord[2]-0.005, 
-              site.coord[1]+0.005, 
-              site.coord[2]+0.005 ) ## Approximately a 500x500m area. Distorted at higher latitudes
+site.coord = c(44.258885, -71.317860)
+loc.name = "Mt_Washington"
 
 
-inatq = get_inat_obs(taxon_name = "Viridiplantae", 
+boundary = c( site.coord[1]-0.001, 
+              site.coord[2]-0.001, 
+              site.coord[1]+0.001, 
+              site.coord[2]+0.001 ) ## Approximately a 500x500m area. Distorted at higher latitudes
+
+
+inatq = get_inat_obs(taxon_name = "Tracheophyta", 
                                bounds=boundary, maxresults  =5000)
 
 
@@ -61,6 +62,7 @@ s.gbif = occ_data(kingdomKey = key, geometry=boundary[c(2,1,4,3)], limit=2000)
 t_names = unique(c(unique(inatq$scientific_name), 
                    unique(s.gbif$data$name)))
 sp_bi = t_names[grep(' ', t_names)]
+sp_bi = sort(sp_bi)
 print(sp_bi)
 
 ```
@@ -74,22 +76,25 @@ The settings below are good for many applications:
 
 ```{r}
 #Before that we need to crop the clim object to our study area:
-clim = crop(clim, extent(c(boundary[2]-5, boundary[4]+5,boundary[1]-5, boundary[3]+5)))
+clim = crop(clim, extent(c(boundary[2]-10, boundary[4]+10,boundary[1]-10, boundary[3]+10)))
 extr = getextr(
   sp_bi,
   clim,
   repo=c('gbif', 'inat'), #query GBIF and iNaturalist together
-  maxrec = 1200, #Should set hi,l/;.....................devgher in practice! 
+  maxrec = 1200, #Should set higher in practice! 
   schema = 'flat', #Spatial thinning by grid
   factor = 4, #merge grid to 2x (5 arcmin in example) for thinning
   nmin = 15, #minimum number of occurrence records required per species
   parallel = FALSE #if you have parallel architecture you can take advantage here
 )
+count=plyr::count(extr$tax)
+
 ```
 
 ### Then build probability distributions for each taxon/variable pair.
 
 ```{r}
+
 densall = dens_obj(extr,
                    clim,
                    manip = 'condi',
