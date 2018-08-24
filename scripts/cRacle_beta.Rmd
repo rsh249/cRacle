@@ -89,6 +89,7 @@ extr = getextr(
 )
 count=plyr::count(extr$tax)
 
+
 ```
 
 ### Then build probability distributions for each taxon/variable pair.
