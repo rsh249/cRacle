@@ -144,7 +144,7 @@ get_dist_all <- function(taxon, maxrec = 19999, repo=c('gbif')) {
   ###GET DATA
   #GET GBIF DATA direct
   gbif = cbind(1,1,1,1);
-  if('gbif' %in% repo){
+  if('gbif' %in% repo || "GBIF" %in% repo){
   tryCatch({
       gbif <- gbif_get(taxon, maxrec = maxrec)
   },
@@ -235,8 +235,9 @@ get_dist_all <- function(taxon, maxrec = 19999, repo=c('gbif')) {
   } else {
     bien = NA
   }
-  data <- rbind(inatr, bison, gbif, bien) ## Consider using plyr::rbind.fill here
   
+  data <- rbind(inatr, bison, gbif, bien) ## Consider using plyr::rbind.fill here
+  if(nrow(data)<5){return(NULL)} #effectively nothing returned and catches a NULL error from the rbind above.
   data$lat <- as.numeric(as.character(data$lat))
   data$lon <- as.numeric(as.character(data$lon))
   data = subset(data, data$tax == taxon)
