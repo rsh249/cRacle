@@ -144,7 +144,7 @@ get_dist_all <- function(taxon, maxrec = 19999, repo=c('gbif')) {
   ###GET DATA
   #GET GBIF DATA direct
   gbif = cbind(1,1,1,1);
-  if('gbif' %in% repo || "GBIF" %in% repo){
+  if('gbif' %in% repo | "GBIF" %in% repo){
   tryCatch({
       gbif <- gbif_get(taxon, maxrec = maxrec)
   },
