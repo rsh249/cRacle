@@ -138,7 +138,7 @@ gbif_get <- function(taxon, maxrec = 200000) {
 #' @param repo Which data repositor(ies) should be searched. Accepts 'gbif', 'inat', and/or 'bison'. Defaults to 'gbif'.
 #' @export
 #' @examples \dontrun{
-#' abies <- gbif_dist_all('Abies', maxrec = 1000);
+#' abies <- get_dist_all('Abies', maxrec = 1000);
 #' }
 get_dist_all <- function(taxon, maxrec = 19999, repo=c('gbif')) {
   ###GET DATA
