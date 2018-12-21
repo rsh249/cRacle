@@ -235,12 +235,12 @@ get_dist_all <- function(taxon, maxrec = 19999, repo=c('gbif')) {
   } else {
     bien = NA
   }
-  
   data <- rbind(inatr, bison, gbif, bien) ## Consider using plyr::rbind.fill here
-  if(nrow(data)<5){return(NULL)} #effectively nothing returned and catches a NULL error from the rbind above.
+  #if(nrow(data)<5){return(NULL)} #effectively nothing returned and catches a NULL error from the rbind above.
   data$lat <- as.numeric(as.character(data$lat))
   data$lon <- as.numeric(as.character(data$lon))
-  data = subset(data, data$tax == taxon)
+  #data = subset(data, data$tax == taxon)
+  data$tax = rep(taxon, nrow(data))
   data = stats::na.omit(data)
   return(data)
 }
@@ -296,6 +296,7 @@ getextr = function(x, clim = clim, maxrec=500, schema= 'flat', repo=c('gbif'),
       print(x[i]);
       ex[[i]] = NULL;
       dat2 = cRacle::get_dist_all(x[i], maxrec = maxrec, repo=repo)
+      print(nrow(dat2));
       if(is.null(dat2)){ ex[[i]]=NULL; next; }
       dat2 = stats::na.omit(dat2);
       if(any(is.na(dat2))){ ex[[i]]=NULL; next;}
@@ -322,7 +323,7 @@ getextr = function(x, clim = clim, maxrec=500, schema= 'flat', repo=c('gbif'),
         ex2 = plyr::rbind.fill(ex2, ex[[k]]);
       }
     } else { return(ex[[1]]); }
-    
+    print(nrow(ex2))
     return(ex2);
   }
   
