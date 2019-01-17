@@ -314,7 +314,7 @@ getextr = function(x, clim = clim, maxrec=500, schema= 'flat', repo=c('gbif'),
     for(i in 1:length(x)){
       print(x[i]);
       ex[[i]] = NULL;
-      dat2 = cracle::get_dist_all(x[i], maxrec = maxrec, repo=repo)
+      dat2 = cRacle::get_dist_all(x[i], maxrec = maxrec, repo=repo)
       print(nrow(dat2));
       if(is.null(dat2)){ ex[[i]]=NULL; next; }
       dat2 = stats::na.omit(dat2);
