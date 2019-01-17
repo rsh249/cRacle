@@ -95,38 +95,57 @@ gbif_get <- function(taxon, maxrec = 200000) {
   #return(hold)
   
   
-  cols = c('key',
-  'genus',
-  'specificEpithet',
-  'decimalLatitude',
-  'decimalLongitude');
-  
-  
-  
-  if(sum(cols %in% names(hold[[1]]))==length(cols)) {
-    df = hold[[1]][, c(cols )]
-    if (length(hold) > 1) {
-      for (n in 2:length(hold)) {
-        # print(n);
-        if(sum(cols %in% colnames(hold[[n]]))==length(cols)){
-      
-        nex = hold[[n]][, c(cols)]
+  # cols = c('key',
+  # 'genus',
+  # 'specificEpithet',
+  # 'decimalLatitude',
+  # 'decimalLongitude');
+  # 
+    if(length(df)>0){
+    df = cbind(hold[[1]]$key, rep(tori, nrow(hold[[1]])), hold[[1]]$decimalLatitude, hold[[1]]$decimalLongitude)
+    } else {return(NULL);}  
+    if(length(hold)>1){
+      for(i in 2:length(hold)){
+        nex = cbind(hold[[i]]$key, rep(tori, nrow(hold[[i]])), hold[[i]]$decimalLatitude, hold[[i]]$decimalLongitude)
         df = rbind(df, nex)
-      } else {next;}
-      
-    }
-
-  } 
-  
-  df[,2] = paste(df[,2], df[,3]);
-  df = df[,-3];
-  
+      }
+    } 
   colnames(df) = c('ind_id', 'tax', 'lat', 'lon')
-  #df$tax = rep(tori, nrow(df));
+  df = as.data.frame(df)
   return(df)
-  } else { 
-    return(NULL); 
-    }
+  
+#   if (sum(cols %in% names(hold[[1]])) == length(cols)) {
+#     
+#     df = hold[[1]][, c(cols)]
+#     if (length(hold) > 1) {
+#       for (n in 2:length(hold)) {
+#         # print(n);
+#         if (sum(cols %in% colnames(hold[[n]])) == length(cols)) {
+#           nex = hold[[n]][, c(cols)]
+#           df = rbind(df, nex)
+#         } else {
+#           
+#           next
+#         }
+#         
+#       } 
+#       
+#     }
+#     
+#     df[, 2] = paste(df[, 2], df[, 3])
+#     
+#     df = df[, -3]
+#     
+#     
+#     colnames(df) = c('ind_id', 'tax', 'lat', 'lon')
+#     #df$tax = rep(tori, nrow(df));
+#     return(df)
+#   } else {
+#     
+#     print("this")
+# #    return(NULL)
+#     
+#   }
 }
 
 #' Download distribution data from repositories
@@ -236,7 +255,7 @@ get_dist_all <- function(taxon, maxrec = 19999, repo=c('gbif')) {
     bien = NA
   }
   data <- rbind(inatr, bison, gbif, bien) ## Consider using plyr::rbind.fill here
-  #if(nrow(data)<5){return(NULL)} #effectively nothing returned and catches a NULL error from the rbind above.
+  if(nrow(data)<5){return(NULL)} #effectively nothing returned and catches a NULL error from the rbind above.
   data$lat <- as.numeric(as.character(data$lat))
   data$lon <- as.numeric(as.character(data$lon))
   #data = subset(data, data$tax == taxon)
@@ -295,7 +314,7 @@ getextr = function(x, clim = clim, maxrec=500, schema= 'flat', repo=c('gbif'),
     for(i in 1:length(x)){
       print(x[i]);
       ex[[i]] = NULL;
-      dat2 = cRacle::get_dist_all(x[i], maxrec = maxrec, repo=repo)
+      dat2 = cracle::get_dist_all(x[i], maxrec = maxrec, repo=repo)
       print(nrow(dat2));
       if(is.null(dat2)){ ex[[i]]=NULL; next; }
       dat2 = stats::na.omit(dat2);
