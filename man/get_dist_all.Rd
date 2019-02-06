@@ -18,6 +18,6 @@ This function requests data from the GBIF database for a single taxon using the 
 }
 \examples{
 \dontrun{
-abies <- gbif_dist_all('Abies', maxrec = 1000);
+abies <- get_dist_all('Abies', maxrec = 1000);
 }
 }

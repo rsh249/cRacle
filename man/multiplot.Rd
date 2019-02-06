@@ -4,8 +4,9 @@
 \alias{multiplot}
 \title{Plot PDF curves of given type and variable for density list object}
 \usage{
-multiplot(dens.oblist, var, col = wes_palette("FantasticFox1"),
-  type = ".kde", l.pos = "topleft", l.cex = 0.8, w = FALSE)
+multiplot(dens.oblist, var, col = sample(wes_palette("Zissou1", n = 99,
+  type = "continuous"), 9999, replace = T), type = ".kde",
+  l.pos = "topleft", l.cex = 0.8, w = FALSE)
 }
 \arguments{
 \item{dens.oblist}{An object derived from the cRacle::dens_obj() function.}

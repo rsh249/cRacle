@@ -107,7 +107,7 @@ gbif_get <- function(taxon, maxrec = 200000) {
     if(length(hold)>1){
       for(i in 2:length(hold)){
         nex = cbind(hold[[i]]$key, rep(tori, nrow(hold[[i]])), hold[[i]]$decimalLatitude, hold[[i]]$decimalLongitude)
-        df = rbind(df, nex)
+        df = plyr::rbind.fill(df, nex)
       }
     } 
   colnames(df) = c('ind_id', 'tax', 'lat', 'lon')
