@@ -102,12 +102,12 @@ gbif_get <- function(taxon, maxrec = 200000) {
   # 'decimalLongitude');
   # 
     if(length(df)>0){
-    df = cbind(hold[[1]]$key, rep(tori, nrow(hold[[1]])), hold[[1]]$decimalLatitude, hold[[1]]$decimalLongitude)
+    df = plyr::rbind.fill.matrix(cbind(hold[[1]]$key, rep(tori, nrow(hold[[1]])), hold[[1]]$decimalLatitude, hold[[1]]$decimalLongitude))
     } else {return(NULL);}  
     if(length(hold)>1){
       for(i in 2:length(hold)){
-        nex = cbind(hold[[i]]$key, rep(tori, nrow(hold[[i]])), hold[[i]]$decimalLatitude, hold[[i]]$decimalLongitude)
-        df = plyr::rbind.fill(df, nex)
+        nex = (cbind(hold[[i]]$key, rep(tori, nrow(hold[[i]])), hold[[i]]$decimalLatitude, hold[[i]]$decimalLongitude))
+        df = plyr::rbind.fill.matrix(df, nex)
       }
     } 
   colnames(df) = c('ind_id', 'tax', 'lat', 'lon')
