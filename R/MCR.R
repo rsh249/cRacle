@@ -36,18 +36,19 @@ MCR <- function(ext, method="unweight", plot = FALSE, file = 'mcr_plot'){
 		optim <- matrix(nrow=2, ncol = nvars);
 		for(i in 1:ntax){
 			sub <- 0;
-			sub <- ext[grep(tax[i], ext$tax),];
+			sub <- ext[which(ext$tax == tax[i]),]; 
 			for(x in 1:nvars){
 				nseq = length(varseq[[x]]); #print(nseq);
 				
-			
+			  lsub.x= length(sub[,x])
+			  
 				for(z in 1:nseq){	
-					prop = sum(sub[,x+(head)]<=varseq[[x]][z])/length(sub[,x]); #should give proportion of sp. with values less than that (~percentile estimation)
+					prop = sum(sub[,x+(head)]<=varseq[[x]][z])/lsub.x; #should give proportion of this sp. with values less than that (~percentile estimation)
 					val = 0;
 					if(method == 'unweight'){
-						if(prop ==0){val = 0}
-						if(prop > 0 & prop < 1){val = 1}
-						if(prop == 1) {val=0}
+						if(prop == 0){val = 0} # less than the species minimum
+						if(prop > 0 & prop < 1){val = 1} # greater than species minimum but less than the maximum
+						if(prop == 1) {val=0} # greater than the species max
 						
 					}
 					if(method== 'weight'){
@@ -89,11 +90,7 @@ MCR <- function(ext, method="unweight", plot = FALSE, file = 'mcr_plot'){
 						
 						}
 					}			
-					
 				}
-				#return(countmatrix);
-			#	print(optimatr);
-				
 			}
 				
 			

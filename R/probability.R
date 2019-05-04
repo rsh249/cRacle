@@ -181,8 +181,8 @@ and_fun <- function(dens.oblist, w = FALSE){
   };
   meansum <- lapply(meanadjust, sum);
   varisum <- lapply(variances, sum);
-  wmeans <- mapply("/", meansum, varisum);
-  wsd <- mapply("/", 1, varisum);
+  wmeans <- mapply("/", meansum, varisum); ## Does this make sense for the weighted standard deviation calculation?
+  wsd <- mapply("/", 1, varisum); ## wsd = sqrt(1(sum(1/sd)))???
   wsd <- lapply(wsd, sqrt);
   field <- data.frame(field);
   gfield <- data.frame(gfield);
