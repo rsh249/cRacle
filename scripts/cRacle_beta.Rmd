@@ -16,11 +16,10 @@ knitr::opts_chunk$set(echo = TRUE)
 ### First load some climate data:
 
 ```{r}
-require(cRacle)
-
-
-require(raster)
-clim = getData('worldclim', var='bio', res=2.5, path=tempdir())
+#devtools::install_github('rsh249/cRacle') #code to install cRacle
+library(cRacle)
+library(raster)
+clim = getData('worldclim', var='bio', res=10, path=tempdir())
 ```
 
 ### For a list of species:
@@ -58,7 +57,7 @@ inatq = inatq[which(inatq$positional_accuracy<200),]
 t_names = unique(inatq$scientific_name)
 sp_bi = t_names[grep(' ', t_names)]
 sp_bi = sort(sp_bi)
-print(sp_bi)
+print(sp_bi) 
 
 ```
 
@@ -82,17 +81,28 @@ extr = getextr(
   nmin = 15, #minimum number of occurrence records required per species
   parallel = FALSE #if you have parallel architecture you can take advantage here
 )
-count=plyr::count(extr$tax)
-tax = which(count$freq >=15)
-sub = count$x[tax]
-extr=extr[extr$tax %in% sub,]
+
+library(dplyr)
+count= extr %>% 
+  group_by(tax) %>%
+  summarise(count=n()) %>%
+  arrange(desc(count))
+
+extr_filt = extr %>% 
+  group_by(tax) %>% 
+  filter(n() >=  15)
+
+#tax = which(count$freq >=15)
+#sub = count$x[tax]
+#extr=extr[extr$tax %in% sub,]
+
 ```
 
 ### Then build probability distributions for each taxon/variable pair.
 
 ```{r}
 
-densall = dens_obj(extr,
+densall = dens_obj(extr_filt,
                    clim,
                    manip = 'condi',
                    kern = 'gaussian',
@@ -159,10 +169,12 @@ summary(all_monitors_clean);
 all_monitors_clean = all_monitors_clean[order(all_monitors_clean$date),]
 coverage=meteo_coverage(all_monitors_clean)
 
-autoplot(coverage)
-
+#autoplot(coverage)
+cbase = coverage
+coverage = coverage$summary
 
 best_cover = coverage[which(coverage$total_obs == max(coverage$total_obs)),]$id;
+
 monitors_clean = subset(all_monitors_clean, all_monitors_clean$id == best_cover)
 dates = monitors_clean$date
 datestr = strsplit(as.character(dates), '-')
