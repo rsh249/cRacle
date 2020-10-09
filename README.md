@@ -8,3 +8,6 @@ To install, run:
 ```{R}
 devtools::install_github('rsh249/cRacle')
 ```
+
+
+Updated:4/15/20
