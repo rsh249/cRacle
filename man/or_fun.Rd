@@ -14,7 +14,7 @@ Using an object from the cRacle::dens_obj() function. Create a single density ob
 }
 \examples{
 \dontrun{
-#distr <- read.table('test_mat.txt', head=T, sep ="\\t");
+#distr <- read.table('test_mat.txt', head=T, sep ="\t");
 #OR:
 data(distr);
 data(climondbioclim);

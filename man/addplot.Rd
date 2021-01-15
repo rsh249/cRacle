@@ -4,8 +4,13 @@
 \alias{addplot}
 \title{Adds a single PDF plot to already open plot}
 \usage{
-addplot(dens.ob, var, col = sample(grDevices::colours()),
-  type = ".kde", w = FALSE)
+addplot(
+  dens.ob,
+  var,
+  col = sample(grDevices::colours()),
+  type = ".kde",
+  w = FALSE
+)
 }
 \arguments{
 \item{dens.ob}{An object derived from the cRacle::densform() or cRacle::and_fun() or cRacle::or_fun() functions.}
@@ -23,7 +28,7 @@ Using an object from the cRacle::densform() or cRacle::and_fun() or cRacle::or_f
 }
 \examples{
 \dontrun{
-#distr <- read.table('test_mat.txt', head=T, sep ="\\t");
+#distr <- read.table('test_mat.txt', head=T, sep ="\t");
 #OR:
 data(distr); data(climondbioclim);
 #extr.raw = extraction(data=distr, clim= climondbioclim, schema='raw');

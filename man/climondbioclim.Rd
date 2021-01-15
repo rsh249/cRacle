@@ -4,11 +4,19 @@
 \name{climondbioclim}
 \alias{climondbioclim}
 \title{Raster grid for 19 Bioclimatic Variables from the CLIMOND project}
-\format{A raster stack}
+\format{
+A raster stack
+
+A raster stack
+}
 \source{
+\url{https://www.climond.org}
+
 \url{https://www.climond.org}
 }
 \usage{
+data(climondbioclim)
+
 data(climondbioclim)
 }
 \description{

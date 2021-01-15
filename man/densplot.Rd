@@ -4,8 +4,13 @@
 \alias{densplot}
 \title{Plot PDF curve of given type and variable for single density object.}
 \usage{
-densplot(dens.ob, var, col = sample(grDevices::colours()),
-  type = ".kde", w = FALSE)
+densplot(
+  dens.ob,
+  var,
+  col = sample(grDevices::colours()),
+  type = ".kde",
+  w = FALSE
+)
 }
 \arguments{
 \item{dens.ob}{An object derived from the cRacle::dens_ob() function.}
@@ -23,7 +28,7 @@ Using an object from the densform() function. Plot a single PDF curve in a new p
 }
 \examples{
 \dontrun{
-#distr <- read.table('test_mat.txt', head=T, sep ="\\t");
+#distr <- read.table('test_mat.txt', head=T, sep ="\t");
 #OR:
 data(distr); data(climondbioclim);
 extr.raw = extraction(data=distr, clim= climondbioclim, schema='raw');

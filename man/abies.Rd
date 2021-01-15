@@ -4,8 +4,10 @@
 \name{abies}
 \alias{abies}
 \title{Global distribution of Abies}
-\format{A data.frame with 4 columns
-'abies'}
+\format{
+A data.frame with 4 columns
+'abies'
+}
 \usage{
 data(abies)
 }

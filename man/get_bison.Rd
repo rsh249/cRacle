@@ -12,7 +12,7 @@ get_bison(taxon, maxrec = 10000)
 \item{maxrec}{Limit on number of records to download.}
 }
 \description{
-This function requests data from the BISON database for a single species. 
+This function requests data from the BISON database for a single species.
 Note that BISON requires exact name matching to binomial. Searching on a
 genus, for example, will match only records that are enterred with that name
 only, NOT all records in that genus identified by a binomial. Also note that
