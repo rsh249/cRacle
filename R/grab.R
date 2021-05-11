@@ -39,25 +39,26 @@ gbif_dl <- function(taxa,
                      gbif_pw = '',
                      gbif_email = '') {
 
+  require(dplyr)
   taxa = taxa
   maxrec = maxrec
-
+  source('~/.Renviron')
   #set up some NULL local variables
   gbifID=NULL
   species=NULL
   decimalLatitude=NULL
   decimalLongitude=NULL
 
-  env_gbif_user=NULL
-  env_gbif_pw=NULL
-  env_gbif_email=NULL
+ # env_gbif_user=NULL
+#  env_gbif_pw=NULL
+ # env_gbif_email=NULL
   ###
 
   # if values for gbif_user, gbif_pw, and gbif_email are not supplied get from environment (assuming .Renviron setup)
 
 
   if (gbif_user == '' & gbif_pw == '' & gbif_email == '') {
-    source('~/.Renviron')
+
     print("No GBIF authentication defined. Trying to use definitions from .Renviron")
     gbif_user = env_gbif_user
     gbif_pw = env_gbif_pw
@@ -105,7 +106,8 @@ gbif_dl <- function(taxa,
 
 
   ret = rgbif::occ_download_get(x)
-  citeGBIF = rgbif::occ_download_meta(x) %>% rgbif::gbif_citation()
+  dlGBIF = rgbif::occ_download_meta(x)
+  citeGBIF = rgbif::gbif_citation(dlGBIF)
   print(citeGBIF)
 
   df = rgbif::occ_download_import(ret) # import from zip as csv
