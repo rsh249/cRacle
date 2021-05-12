@@ -129,7 +129,7 @@ gbif_dl <- function(taxa,
 
   # convert to cRacle compatible form
   ret_df = df %>% dplyr::select(ind_id = gbifID, tax=species, lat = decimalLatitude, lon = decimalLongitude)
-  file.remove(paste(meta$key, '.zip'))
+  file.remove(paste(meta$key, '.zip', sep=''))
   return(ret_df)
 
 }
