@@ -42,7 +42,8 @@ gbif_dl <- function(taxa,
                      gbif_pw = '',
                      gbif_email = '') {
 
-  require(dplyr)
+  requireNamespace('dplyr')
+  requireNamespace('data.table')
   taxa = taxa
   maxrec = maxrec
   source('~/.Renviron')

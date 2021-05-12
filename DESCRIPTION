@@ -9,7 +9,7 @@ Author: Robert Harbert
 Maintainer: R Harbert <rharbert@amnh.org>
 Description: CRACLE is a mutual climate range method for estimating climate from biological communities. Originally designed for plant community data, many of these tools are still aimed at plant distribution data. However, the method can be applied to other (especially beetle) communities as climate proxies. This package also has other tools to perform related analyses such as Thompson's Mutual Climate Range (weighted and unweighted) and the equivalent Coexistence Approach.
 License: GPL (>=3)
-Imports: Rcpp (>= 0.12.14), dplyr, raster, parallel, doParallel, doSNOW, foreach, iterators, jsonlite, urltools, rinat, rgbif, wesanderson
+Imports: Rcpp (>= 0.12.14), dplyr, raster, parallel, doParallel, doSNOW, foreach, iterators, jsonlite, urltools, rinat, rgbif, wesanderson, data.table
 LazyData: true
 ByteCompile: true
 LinkingTo: Rcpp
