@@ -20,8 +20,6 @@ NULL
 #' @param nmin Minimum number of records allowed. Taxa or groups with fewer records will not be returned.
 #' @export
 #' @examples
-#' #distr <- read.table('test_mat.txt', head=T, sep ="\t");
-#' #OR:
 #' data(distr);
 #' data(climondbioclim);
 #' extr.raw = extraction(data=distr, clim= climondbioclim, schema='raw');
@@ -33,44 +31,23 @@ extraction <- function(data, clim, schema = "raw", factor = 0, rm.outlier = FALS
 
   mat.larr <- data;
   phytoclim <- clim;
-  #nclat <- which(colnames(mat.larr)=='lat');
-  #nclon <- which(colnames(mat.larr)=='lon');
 
-  #    if(parallel==FALSE){
-  extr.larr <- terra::extract(phytoclim, cbind(mat.larr$lon, mat.larr$lat), cellnumbers=T);
-  # } else {
-  #  bloc = round(nrow(mat.larr)/nclus);
-  #cl <- parallel::makeCluster(nclus, type = "SOCK")
-  #doSNOW::registerDoSNOW(cl);
-
-  # extr.larr <-
-  #foreach::foreach(i = 1:nclus,
-  #    .packages = 'cRacle',
-  #    .combine = 'rbind') %dopar% {
-  #        start = i;
-  #       end = start+bloc;
-  #        subs = mat.larr[i:(i+bloc-1),];
-  #        e = raster::extract(phytoclim, cbind(subs$lon, subs$lat), cellnumbers=T);
-  #        return(e);
-  #    }
-
-  #        parallel::stopCluster(cl)
-
-
-
-  #}
-  ##
-  if(nrow(stats::na.omit(extr.larr))<5){
+  extr.larr <- terra::extract(phytoclim, cbind(mat.larr$lon, mat.larr$lat), cells=T);
+  count = nrow(stats::na.omit(extr.larr))
+  if(count<5){
     cat("ERR: Records out of study area\n")
     return(NULL)
   }
+
+
   extr.larr <- cbind(mat.larr, extr.larr);
+
   if(schema != 'raw'){
     if(factor == 0){} else {
-      r2 <- raster::aggregate(phytoclim, fact = factor, fun=mean);
-      tmp.ext <- raster::extract(r2, cbind(mat.larr$lon, mat.larr$lat), cellnumbers=T);
-      extr.larr[,(ncol(extr.larr)+1)] = extr.larr[,'cells'];
-      extr.larr[,'cells'] = tmp.ext[,'cells'];
+      r2 <- terra::aggregate(phytoclim, fact = factor, fun="mean");
+      tmp.ext <- terra::extract(r2, cbind(mat.larr$lon, mat.larr$lat), cells=T);
+      extr.larr[,"rawcell"] = extr.larr[,'cell'];
+      extr.larr[,'cell'] = tmp.ext[,'cell'];
 
     }
 
@@ -97,7 +74,8 @@ extraction <- function(data, clim, schema = "raw", factor = 0, rm.outlier = FALS
       set <- subset(extr.larr, extr.larr$tax == tlist[i]);
       if(schema == "flat"){
         sub = set
-        sub <- sub[!duplicated(sub[,"cells"]),];
+
+        sub <- sub[!duplicated(sub[,"cell"]),];
         #if(length(sub[,1])>=5){
         holder <- rbind(holder, sub);
         #	}
@@ -106,7 +84,7 @@ extraction <- function(data, clim, schema = "raw", factor = 0, rm.outlier = FALS
         glist <- unique(set$sub);
         for(n in 1:length(glist)){
           sub <- subset(set, set$sub == glist[n]);
-          sub <- sub[!duplicated(sub[,"cells"]),];
+          sub <- sub[!duplicated(sub[,"cell"]),];
           if(length(sub[,1])>=5){
             holder <- rbind(holder, sub);
           }
@@ -115,53 +93,62 @@ extraction <- function(data, clim, schema = "raw", factor = 0, rm.outlier = FALS
     }
     extr.larr <- holder;
   }
-  if(schema != 'raw'){
+  #if(schema != 'raw'){
 
-    extr.larr[,'cells'] = extr.larr[,ncol(extr.larr)];
+  #  extr.larr[,'cell'] = extr.larr[,ncol(extr.larr)];
 
-    extr.larr = extr.larr[,-ncol(extr.larr)];
-  }
+   # extr.larr = extr.larr[,-ncol(extr.larr)];
+
+  #}
   #print("EXTRACTION MONITOR:")
   #  print(length(holder[,1]));
 
   #print(length(extr.larr[,1]));
-  head = which(colnames(extr.larr)=='cells')-1;
+  head = ncol(mat.larr)+1
   #print(head)
 
-  extr.larr[,1] = as.numeric(as.character(extr.larr[,1]))
+  #extr.larr[,1] = as.numeric(as.character(extr.larr[,1]))
   if(rm.outlier== TRUE){
+    df = as.data.frame(extr.larr)
+    for(nn in 1:terra::nlyr(phytoclim)){
+      print(head+nn)
 
-    for(nn in 1:raster::nlayers(phytoclim)){
-      n.mean <- mean(as.numeric(extr.larr[,(head+nn)]));
-      n.sd <- stats::sd(as.numeric(extr.larr[,(head+nn)]));
-      rn <- length(extr.larr[,(head+nn)]);
+      n.mean <- mean(as.numeric(df[,head+nn]), na.rm=T);
+      n.sd <- stats::sd(as.numeric(df[,(head+nn)]));
+      rn <- nrow(df);
       t = stats::qt((1-(alpha/2)), rn-1);
       minci = n.mean-(t*n.sd);
       maxci = n.mean+(t*n.sd);
-      extr.larr <- subset(extr.larr, extr.larr[,(head+nn)] >= minci);
-      extr.larr <- subset(extr.larr, extr.larr[,(head+nn)] <= maxci);
+      extr.larr <- subset(df, df[,(head+nn)] >= minci);
+      extr.larr <- subset(df, df[,(head+nn)] <= maxci);
 
     }
 
   }
+  extr.larr = df
   t.list = unique(extr.larr$tax);
 
   if(length(t.list)>1){
-    hold = data.frame(extr.larr[1,]);
+    hold = list()
 
     for(zz in 1:length(t.list)){
       sub <- subset(extr.larr, extr.larr$tax == t.list[[zz]]);
+      sub <- stats::na.omit(sub)
       if(nrow(sub) < nmin){
 
       } else {
-        hold = rbind(hold, sub);
+        hold[[zz]] = sub
       }
     }
-    colnames(hold) = colnames(extr.larr);
+    #colnames(hold) = colnames(extr.larr);
+    hold = dplyr::bind_rows(hold)
   } else {
     hold = extr.larr;
   }
-  hold = hold[-1,]
+
+
   if(nrow(hold) == 0){return(NULL)}
   return(hold);
 };
+
+

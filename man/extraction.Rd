@@ -33,8 +33,6 @@ extraction(
 This function is a feature-added wrapper for raster::extract();
 }
 \examples{
-#distr <- read.table('test_mat.txt', head=T, sep ="\t");
-#OR:
 data(distr);
 data(climondbioclim);
 extr.raw = extraction(data=distr, clim= climondbioclim, schema='raw');
