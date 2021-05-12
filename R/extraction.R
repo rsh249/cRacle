@@ -29,7 +29,7 @@ NULL
 #' extr.spec = extraction(data=distr, clim= climondbioclim, schema='species');
 extraction <- function(data, clim, schema = "raw", factor = 0, rm.outlier = FALSE,  alpha = 0.01, nmin = 5){
 
-  if(length(data[,1]) < 5){cat('ERR: Too few records\n'); return(NULL);}
+  if(nrow(data) < 5){cat('ERR: Too few records\n'); return(NULL);}
 
   mat.larr <- data;
   phytoclim <- clim;
@@ -37,7 +37,7 @@ extraction <- function(data, clim, schema = "raw", factor = 0, rm.outlier = FALS
   #nclon <- which(colnames(mat.larr)=='lon');
 
   #    if(parallel==FALSE){
-  extr.larr <- raster::extract(phytoclim, cbind(mat.larr$lon, mat.larr$lat), cellnumbers=T);
+  extr.larr <- terra::extract(phytoclim, cbind(mat.larr$lon, mat.larr$lat), cellnumbers=T);
   # } else {
   #  bloc = round(nrow(mat.larr)/nclus);
   #cl <- parallel::makeCluster(nclus, type = "SOCK")
