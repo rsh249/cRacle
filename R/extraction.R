@@ -62,7 +62,9 @@ extraction <- function(data, clim, schema = "raw", factor = 0, rm.outlier = FALS
     holder <- data.frame();
     tlist <- unique(extr.larr[,'tax']);
     for(i in 1:length(tlist)){
-      set <- subset(extr.larr, extr.larr[,'tax'] == tlist[i]);
+      #set <- subset(extr.larr, extr.larr[,'tax'] == tlist[i]);
+      set <- extr.larr %>%
+        filter(tax == tlist[i])
       if(schema == "flat"){
         cat("Begin flat aggregate sampling...", i, "\n")
 
