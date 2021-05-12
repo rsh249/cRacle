@@ -38,4 +38,5 @@ data(climondbioclim);
 extr.raw = extraction(data=distr, clim= climondbioclim, schema='raw');
 extr.flat = extraction(data=distr, clim= climondbioclim, schema='flat');
 extr.spec = extraction(data=distr, clim= climondbioclim, schema='species');
+
 }

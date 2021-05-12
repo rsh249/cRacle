@@ -3,7 +3,6 @@
 #' @import foreach
 #' @import iterators
 #' @import doSNOW
-#' @useDynLib cRacle
 NULL
 
 
@@ -25,14 +24,14 @@ NULL
 #' extr.raw = extraction(data=distr, clim= climondbioclim, schema='raw');
 #' extr.flat = extraction(data=distr, clim= climondbioclim, schema='flat');
 #' extr.spec = extraction(data=distr, clim= climondbioclim, schema='species');
+#'
 extraction <- function(data, clim, schema = "raw", factor = 0, rm.outlier = FALSE,  alpha = 0.01, nmin = 5){
 
   if(nrow(data) < 5){cat('ERR: Too few records\n'); return(NULL);}
 
   mat.larr <- data;
   phytoclim <- clim;
-
-  extr.larr <- terra::extract(phytoclim, cbind(mat.larr$lon, mat.larr$lat), cells=T);
+  extr.larr <- raster::extract(phytoclim, cbind(mat.larr$lon, mat.larr$lat), cellnumbers=T);
   count = nrow(stats::na.omit(extr.larr))
   if(count<5){
     cat("ERR: Records out of study area\n")
@@ -43,48 +42,43 @@ extraction <- function(data, clim, schema = "raw", factor = 0, rm.outlier = FALS
   extr.larr <- cbind(mat.larr, extr.larr);
 
   if(schema != 'raw'){
+    cat("Aggregate Raster for flat or species filtering\n")
     if(factor == 0){} else {
-      r2 <- terra::aggregate(phytoclim, fact = factor, fun="mean");
-      tmp.ext <- terra::extract(r2, cbind(mat.larr$lon, mat.larr$lat), cells=T);
-      extr.larr[,"rawcell"] = extr.larr[,'cell'];
-      extr.larr[,'cell'] = tmp.ext[,'cell'];
+      r2 <- raster::aggregate(phytoclim, fact = factor, fun="mean");
+      tmp.ext <- raster::extract(r2, cbind(mat.larr$lon, mat.larr$lat), cellnumbers=T);
+      extr.larr[,"rawcell"] = extr.larr[,'cells'];
+      extr.larr[,"cells"] = tmp.ext[,"cells"];
 
     }
 
 
   }
-  extr.larr <- stats::na.omit(extr.larr)
+#  return(extr.larr)
+  #extr.larr <- stats::na.omit(extr.larr)
   if(schema == "raw"){
-    holder <- data.frame();
-    tlist <- unique(extr.larr$tax);
-    for(i in 1:length(tlist)){
-      set <- subset(extr.larr, extr.larr$tax == tlist[i]);
+    cat("Raw filtering: Remove only exact geographic duplicates\n")
 
-      #if(length(set[,1])>=5){
-      holder <- rbind(holder, set);
-      #print(length(holder[,1]))
-
-      #}
-    }
-    extr.larr = holder;
   } else {
     holder <- data.frame();
-    tlist <- unique(extr.larr$tax);
+    tlist <- unique(extr.larr[,'tax']);
     for(i in 1:length(tlist)){
-      set <- subset(extr.larr, extr.larr$tax == tlist[i]);
+      set <- subset(extr.larr, extr.larr[,'tax'] == tlist[i]);
       if(schema == "flat"){
+        cat("Begin flat aggregate sampling...", i, "\n")
+
         sub = set
 
-        sub <- sub[!duplicated(sub[,"cell"]),];
+        sub <- sub[!duplicated(sub[,"cells"]),];
         #if(length(sub[,1])>=5){
         holder <- rbind(holder, sub);
         #	}
       }
       if(schema == "species"){
+        cat("Begin within species aggregate sampling...", i, "\n")
         glist <- unique(set$sub);
         for(n in 1:length(glist)){
           sub <- subset(set, set$sub == glist[n]);
-          sub <- sub[!duplicated(sub[,"cell"]),];
+          sub <- sub[!duplicated(sub[,"cells"]),];
           if(length(sub[,1])>=5){
             holder <- rbind(holder, sub);
           }
@@ -93,62 +87,36 @@ extraction <- function(data, clim, schema = "raw", factor = 0, rm.outlier = FALS
     }
     extr.larr <- holder;
   }
-  #if(schema != 'raw'){
 
-  #  extr.larr[,'cell'] = extr.larr[,ncol(extr.larr)];
-
-   # extr.larr = extr.larr[,-ncol(extr.larr)];
-
-  #}
-  #print("EXTRACTION MONITOR:")
-  #  print(length(holder[,1]));
-
-  #print(length(extr.larr[,1]));
-  head = ncol(mat.larr)+1
+  head = ncol(mat.larr)
   #print(head)
-
-  #extr.larr[,1] = as.numeric(as.character(extr.larr[,1]))
   if(rm.outlier== TRUE){
-    df = as.data.frame(extr.larr)
-    for(nn in 1:terra::nlyr(phytoclim)){
+    mdata = as.data.frame(extr.larr)
+    for(nn in 1:raster::nlayers(phytoclim)){
       print(head+nn)
 
-      n.mean <- mean(as.numeric(df[,head+nn]), na.rm=T);
-      n.sd <- stats::sd(as.numeric(df[,(head+nn)]));
-      rn <- nrow(df);
+      n.mean <- mean(as.numeric(mdata[,head+nn]), na.rm=T);
+      n.sd <- stats::sd(as.numeric(mdata[,(head+nn)]));
+      rn <- nrow(mdata);
       t = stats::qt((1-(alpha/2)), rn-1);
       minci = n.mean-(t*n.sd);
       maxci = n.mean+(t*n.sd);
-      extr.larr <- subset(df, df[,(head+nn)] >= minci);
-      extr.larr <- subset(df, df[,(head+nn)] <= maxci);
+      extr.larr <- subset(mdata, mdata[,(head+nn)] >= minci);
+      extr.larr <- subset(mdata, mdata[,(head+nn)] <= maxci);
 
     }
 
   }
-  extr.larr = df
-  t.list = unique(extr.larr$tax);
-
-  if(length(t.list)>1){
-    hold = list()
-
-    for(zz in 1:length(t.list)){
-      sub <- subset(extr.larr, extr.larr$tax == t.list[[zz]]);
-      sub <- stats::na.omit(sub)
-      if(nrow(sub) < nmin){
-
-      } else {
-        hold[[zz]] = sub
-      }
-    }
-    #colnames(hold) = colnames(extr.larr);
-    hold = dplyr::bind_rows(hold)
-  } else {
-    hold = extr.larr;
-  }
 
 
+  t.list = unique(extr.larr[,'tax']);
+
+  cat("Taxon list of lenth:", length(t.list), "\n")
+  hold = extr.larr %>%
+      group_by(tax) %>%
+      filter(n() >= nmin) %>% as.data.frame()
   if(nrow(hold) == 0){return(NULL)}
   return(hold);
-};
+}
 
 
