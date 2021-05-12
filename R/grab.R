@@ -23,10 +23,12 @@ NULL
 #'
 #'
 #' @param taxa A string of the form 'genus species' or 'genus', or a vector of several names in this form.
+#' @param dir.out Path to your output directory
 #' @param maxrec Maximum number of records to download.
 #' @param gbif_user Your GBIF username
 #' @param gbif_pw Your GBIF password
 #' @param gbif_email Your GBIF email
+#' @author Yaniv Kovalski
 #' @export
 #' @examples \dontrun{
 #' test <- gbif_dl('Amborella trichopoda');
@@ -34,6 +36,7 @@ NULL
 
 
 gbif_dl <- function(taxa,
+                    dir.out='gbif_dl',
                     maxrec= Inf,
                      gbif_user = '',
                      gbif_pw = '',
@@ -67,13 +70,13 @@ gbif_dl <- function(taxa,
 
   keys <- sapply(taxa,
                  function(x)
-                   rgbif::name_backbone(name = x,
-                                 kingdom = "Viridiplantae")$genusKey, USE.NAMES = F)
+                   rgbif::name_backbone(name = x)$genusKey, USE.NAMES = F)
 
+  #
+  # nombre = rgbif::name_lookup(higherTaxonKey = keys,
+  #                      limit = length(taxa),
+  #                      status = "accepted") ## do I need this?
 
-  nombre = rgbif::name_lookup(higherTaxonKey = keys,
-                       limit = length(taxa),
-                       status = "accepted") ## do I need this?
 
   ## Get GBIF Citation
   x = rgbif::occ_download(
@@ -114,18 +117,18 @@ gbif_dl <- function(taxa,
   df$citation = rep(citeGBIF$download, nrow(df))
 
   # archive df
-  if(!dir.exists('gbif_dl')){
-    dir.create('gbif_dl' )
+  if(!dir.exists(dir.out)){
+    dir.create(dir.out)
   }
 
   meta = rgbif::occ_download_meta(x)
 
-  utils::write.csv(df, paste('gbif_dl/', meta$key, '.csv', sep=''))
+  data.table::fwrite(df, paste('gbif_dl/', meta$key, '.csv', sep=''))
 
 
   # convert to cRacle compatible form
   ret_df = df %>% dplyr::select(ind_id = gbifID, tax=species, lat = decimalLatitude, lon = decimalLongitude)
-
+  file.remove(paste(meta$key, '.zip'))
   return(ret_df)
 
 }

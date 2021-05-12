@@ -4,10 +4,19 @@
 \alias{gbif_dl}
 \title{Use rgbif to get a citable GBIF download}
 \usage{
-gbif_dl(taxa, maxrec = Inf, gbif_user = "", gbif_pw = "", gbif_email = "")
+gbif_dl(
+  taxa,
+  dir.out = "gbif_dl",
+  maxrec = Inf,
+  gbif_user = "",
+  gbif_pw = "",
+  gbif_email = ""
+)
 }
 \arguments{
 \item{taxa}{A string of the form 'genus species' or 'genus', or a vector of several names in this form.}
+
+\item{dir.out}{Path to your output directory}
 
 \item{maxrec}{Maximum number of records to download.}
 
@@ -36,4 +45,7 @@ source("~/.Renviron")
 \dontrun{
 test <- gbif_dl('Amborella trichopoda');
 }
+}
+\author{
+Yaniv Kovalski
 }
