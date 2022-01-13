@@ -1,6 +1,6 @@
 
 #' P(A | B) = P(A) + P(B)
-#' 
+#'
 #' Using an object from the cRacle::dens_obj() function. Create a single density object (i.e., like that produced by cRacle::densform()) where the probability curves correspond to the probability density function of any one taxon/species from the original set occurring. This is not actually used in the implementation of finding the maximum joint likelihood in a CRACLE analysis, but is a good companion to the cRacle::and_fun() function.
 #' @param dens.oblist An object derived from the cRacle::dens_ob() function.
 #' @export
@@ -21,7 +21,7 @@ or_fun <- function(dens.oblist){
   varlist <- names(dens.oblist[[1]]);
   varlist <- (varlist[1:((length(varlist)-1)/6)]);
   varlist <- sub(".kde", "", varlist);
-  
+
   field <- list();
   gfield <- list();
   xfield <- list();
@@ -33,7 +33,7 @@ or_fun <- function(dens.oblist){
     varx <- paste(var, "x", sep = ".");
     vargauss <- paste(var, "gauss", sep = ".");
     varkde <- paste(var, "kde", sep = ".");
-    
+
     varmean <- paste(var, "mean", sep = ".");
     varsd <- paste(var, "sd", sep = ".");
     meanlist <- list();
@@ -47,7 +47,7 @@ or_fun <- function(dens.oblist){
     sdlist[[1]] <- as.numeric(dens.obcurr[[varsd]])^2;
     prod <- as.numeric(dens.obcurr[[varkde]]);
     prod.gauss <- as.numeric(dens.obcurr[[vargauss]]);
-    
+
     for(i in 2:length(dens.oblist)){
       dens.obnow <- dens.oblist[[i]];
       prod <- prod + (as.numeric(dens.obnow[[varkde]]));
@@ -92,8 +92,8 @@ or_fun <- function(dens.oblist){
 #and_fun = compiler::cmpfun(and_fun);
 
 #' P(A | B) = P(A) * P(B)
-#' 
-#' Using an object from the cRacle::dens_obj() function. Create a single density object (i.e., like that produced by cRacle::densform()) where the probability curves correspond to the probability density function of ALL taxa/species from the original set occurring. 
+#'
+#' Using an object from the cRacle::dens_obj() function. Create a single density object (i.e., like that produced by cRacle::densform()) where the probability curves correspond to the probability density function of ALL taxa/species from the original set occurring.
 #' @param dens.oblist An object derived from the cRacle::dens_ob() function.
 #' @param w Weight importance of probability functions
 #' @export
@@ -116,7 +116,7 @@ and_fun <- function(dens.oblist, w = FALSE){
   varlist <- names(dens.oblist[[1]]); #print(varlist)
   varlist <- (varlist[1:((length(varlist)-1)/6)]) ;
   varlist <- sub(".kde", "", varlist);
-  
+
   field <- list();
   gfield <- list();
   xfield <- list();
@@ -124,25 +124,25 @@ and_fun <- function(dens.oblist, w = FALSE){
   variances <- list();
   name = "PRODUCT";
   for (n in 1:length(varlist)){ #print(varlist[n])
-    var = varlist[n]; 
+    var = varlist[n];
     varx <- paste(var, "x", sep = ".");
     varkde <- paste(var, "kde", sep = ".");
-    
+
     vargauss <- paste(var, "gauss", sep = ".");
     varmean <- paste(var, "mean", sep = ".");
     varsd <- paste(var, "sd", sep = ".");
     varw <- paste(var, "w", sep = '.');
     meanlist <- list();
     sdlist <- list();
-    
+
     dens.obcurr <- dens.oblist[[1]];
-    
-    if(w == TRUE){ 
+
+    if(w == TRUE){
       we = dens.obcurr[[varw]]; #print(we);
     } else {
       we <- 1;
     }
-    
+
     to <- max(stats::na.omit(dens.obcurr[[varx]]));
     from <- min(stats::na.omit(dens.obcurr[[varx]]));
     num = length((dens.obcurr[[varx]]));
@@ -203,9 +203,19 @@ and_fun <- function(dens.oblist, w = FALSE){
 
 #get_optim() takes an object output from the densform function or and_fun or or_fun and finds optimal values for each PDF
 #' Find PDF optim(a)um
-#' 
-#' Using an object from the cRacle::dens_obj() function. Create a single density object (i.e., like that produced by cRacle::densform()) where the probability curves correspond to the probability density function of ALL taxa/species from the original set occurring. 
+#'
+#' Using an object from the cRacle::dens_obj() function. Create a single density object (i.e., like that produced by cRacle::densform()) where the probability curves correspond to the probability density function of ALL taxa/species from the original set occurring.
 #' @param dens.ob An object derived from the cRacle::dens_ob() function.
+#' @return A list with letters and numbers.
+#' \itemize{
+#'   \item conintkde - 95% Confidence intervals using kernel density distributions, N-CRACLE
+#'   \item conintgauss- 95% Confidence intervals using gaussian density distribution. P-CRACLE
+#'   \item origk - Kernel density optimal interval as in Harbert & Nixon, 2015. Within 1% of the maximal likelihood.
+#'   \item origg - Gaussiandensity optimal interval as in Harbert & Nixon, 2015. Within 1% of the maximal likelihood.
+#'   \item dirconint - Direct calculation of the gaussian based confidence interval using weighted means. Should be identical to conintgauss.
+#'   \item means - Weighted means, Should be the same as the maximally likely value of the gaussian density curve.
+#'   \item sds - Weighted standard deviation.
+#' }
 #' @export
 #' @examples \dontrun{
 #' #distr <- read.table('test_mat.txt', head=T, sep ="\t");
@@ -234,13 +244,13 @@ get_optim <- function(dens.ob){
   means <- list();
   sds <- list();
   for (j in 1:length(varlist)){
-    
+
     var = varlist[[j]];
     varx <- paste(var, "x", sep = ".");
     #print(varx)
     vargauss <- paste(var, "gauss", sep = ".");
     varkde <- paste(var, "kde", sep = ".");
-    
+
     varmean <- paste(var, "mean", sep = ".");
     varsd <- paste(var, "sd", sep = ".");
     cumulkde <- list();
@@ -257,7 +267,7 @@ get_optim <- function(dens.ob){
       runkde = runkde + (dens.ob1[[varkde]][i]*by);
       cumulkde[[i]] <- runkde;
       if(is.na(cumulkde[[i]])){cumulkde[[i]] = 0;}
-      if(i==1){ 
+      if(i==1){
         if(cumulkde[[i]] >= 0.025){
           cikde[[1]] <- dens.ob1[[varx]][i];
         };
@@ -276,8 +286,8 @@ get_optim <- function(dens.ob){
       rungauss = rungauss + (dens.ob1[[vargauss]][i]*by);
       cumulgauss[[i]] <- rungauss;
       if(is.na(cumulgauss[[i]])){cumulgauss[[i]] = 0;}
-      
-      if(i==1){ 
+
+      if(i==1){
         if(cumulgauss[[i]] >= 0.025){
           cigauss[[1]] <- dens.ob1[[varx]][i];
         };
@@ -300,7 +310,7 @@ get_optim <- function(dens.ob){
     origk[[j]] <- c(min(stats::na.omit(origkde)), max(stats::na.omit(origkde)));
     loggauss <- ifelse(dens.ob1[[vargauss]]>0, log(dens.ob1[[vargauss]]*by), -Inf);
     #	loggauss <- log(dens.ob1[[vargauss]]*by)
-    origgauss <- subset(dens.ob1[[varx]], loggauss >= max(stats::na.omit(loggauss))*1.01); 
+    origgauss <- subset(dens.ob1[[varx]], loggauss >= max(stats::na.omit(loggauss))*1.01);
     origg[[j]] <- c(min(stats::na.omit(origgauss)), max(stats::na.omit(origgauss)));
     conintkde[[j]] <- c(cikde[[1]], cikde[[2]]);
     conintgauss[[j]] <- c(cigauss[[1]], cigauss[[2]]);
@@ -337,7 +347,7 @@ for(i in 1:length(var)){
   varx <- paste(var[[i]], "x", sep = ".");
   gauss <- paste(var[[i]], "gauss", sep = ".");
   kde <- paste(var[[i]], "kde", sep = ".");
-  
+
   to <- max(subset(dens.ob1[[varx]], !is.na(dens.ob1[[kde]])));
   from <- min(subset(dens.ob1[[varx]], !is.na(dens.ob1[[kde]])));
   num <- length(subset(dens.ob1[[varx]], !is.na(dens.ob1[[kde]])));

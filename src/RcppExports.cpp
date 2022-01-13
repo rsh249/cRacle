@@ -5,6 +5,11 @@
 
 using namespace Rcpp;
 
+#ifdef RCPP_USE_GLOBAL_ROSTREAM
+Rcpp::Rostream<true>&  Rcpp::Rcout = Rcpp::Rcpp_cout_get();
+Rcpp::Rostream<false>& Rcpp::Rcerr = Rcpp::Rcpp_cerr_get();
+#endif
+
 // distance
 Rcpp::NumericMatrix distance(Rcpp::NumericMatrix start, Rcpp::NumericMatrix end);
 RcppExport SEXP _cRacle_distance(SEXP startSEXP, SEXP endSEXP) {

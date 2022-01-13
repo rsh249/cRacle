@@ -1,7 +1,7 @@
 Package: cRacle
 Type: Package
 Title: Climate Reconstruction Analysis using Coexistence Likelihood Estimation
-Version: 1.0.0
+Version: 1.1.0
 Depends: R (>= 2.10.0)
 Encoding: UTF-8
 Date: 2018-08-17
@@ -28,4 +28,4 @@ Imports:
 LazyData: true
 ByteCompile: true
 LinkingTo: Rcpp
-RoxygenNote: 7.1.1
+RoxygenNote: 7.1.2
