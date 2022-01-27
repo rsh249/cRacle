@@ -109,8 +109,7 @@ gbif_dl <- function(taxa,
       "basisOfRecord",
       c('HUMAN_OBSERVATION', 'OBSERVATION',
         'MACHINE_OBSERVATION', 'LITERATURE',
-        'MATERIAL_SAMPLE', 'PRESERVED_SPECIMEN',
-        'LIVING_SPECIMEN')
+        'MATERIAL_SAMPLE', 'PRESERVED_SPECIMEN')
     ),
     rgbif::pred("hasCoordinate", TRUE),
     rgbif::pred("hasGeospatialIssue", FALSE),
