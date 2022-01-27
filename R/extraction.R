@@ -118,7 +118,7 @@ extraction <- function(data, clim, schema = "raw", factor = 0, rm.outlier = FALS
       group_by(tax) %>%
       filter(n() >= nmin) %>%
     as.data.frame() %>%
-    na.omit()
+    stats::na.omit()
 
   if(nrow(hold) == 0){return(NULL)}
   return(hold);
