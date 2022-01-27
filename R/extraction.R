@@ -116,7 +116,10 @@ extraction <- function(data, clim, schema = "raw", factor = 0, rm.outlier = FALS
   cat("Taxon list of lenth:", length(t.list), "\n")
   hold = extr.larr %>%
       group_by(tax) %>%
-      filter(n() >= nmin) %>% as.data.frame()
+      filter(n() >= nmin) %>%
+    as.data.frame() %>%
+    na.omit()
+
   if(nrow(hold) == 0){return(NULL)}
   return(hold);
 }
