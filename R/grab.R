@@ -80,7 +80,7 @@ gbif_dl <- function(taxa,
                    }
                    if(find$data$matchType == "NONE"){
                      message(paste("Failed to find an exact match for", x))
-                     message("\tUsing alternatives")
+                     message("\tTrying alternatives")
                      warning("\tEXAMINE your taxonomy closely for errors in these results!")
                      find$alternatives[1,]$scientificName
                    } else if (nrow(find$data) > 1) {
