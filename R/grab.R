@@ -16,13 +16,14 @@ NULL
 #' your username (gbif_user), password (gbif_pw), and email (gbif_email) to this function OR write them
 #' to your .Renviron file using:
 #'
-#' system('echo "env_gbif_user=\'your_username\'" >> ~/.Renviron')
-#' system('echo "env_gbif_pw=\'your_password\'" >> ~/.Renviron')
-#' system('echo "env_gbif_email=\'your_email@gmail.com\'" >> ~/.Renviron')
-#' source("~/.Renviron")
+#' system('echo "env_gbif_user=\'your_username\'" >> ~/.Renviron');
+#' system('echo "env_gbif_pw=\'your_password\'" >> ~/.Renviron');
+#' system('echo "env_gbif_email=\'your_email@gmail.com\'" >> ~/.Renviron');
+#' system("source~/.Renviron");
 #'
 #'
 #' @param taxa A string of the form 'genus species' or 'genus', or a vector of several names in this form.
+#' @param kingdom Specify ONE taxonomic kingdom for this query. Valid strings are "all", or kingdom names as defined in the GBIF taxonomy.
 #' @param dir.out Path to your output directory
 #' @param maxrec Maximum number of records to download.
 #' @param gbif_user Your GBIF username
@@ -36,6 +37,7 @@ NULL
 
 
 gbif_dl <- function(taxa,
+                    kingdom = "all",
                     dir.out='gbif_dl',
                     maxrec= Inf,
                      gbif_user = '',
@@ -70,8 +72,29 @@ gbif_dl <- function(taxa,
   }
 
   keys <- sapply(taxa,
-                 function(x)
-                   rgbif::name_backbone(name = x)$genusKey, USE.NAMES = F)
+                 function(x) {
+                   if(kingdom == "all"){
+                     find <- rgbif::name_backbone_verbose(name = x)
+                   } else {
+                     find <- rgbif::name_backbone_verbose(name = x, kingdom = kingdom)
+                   }
+                   if(find$data$matchType == "NONE"){
+                     message(paste("Failed to find an exact match for", x))
+                     message("\tUsing alternatives")
+                     warning("\tEXAMINE your taxonomy closely for errors in these results!")
+                     find$alternatives[1,]$scientificName
+                   } else if (nrow(find$data) > 1) {
+                     find$alternatives[1,]$scientificName
+                   } else {
+                     find$data$scientificName
+                   }
+                 }
+                 , USE.NAMES = F)
+  keys2 <- sapply(keys,
+                  function(x) {
+                    find.again <- rgbif::name_backbone(name = x)$usageKey
+                  },
+                  USE.NAMES = F)
 
   #
   # nombre = rgbif::name_lookup(higherTaxonKey = keys,
@@ -81,7 +104,7 @@ gbif_dl <- function(taxa,
 
   ## Get GBIF Citation
   x = rgbif::occ_download(
-    rgbif::pred_in("taxonKey", unlist(keys)),
+    rgbif::pred_in("taxonKey", unlist(keys2)),
     rgbif::pred_in(
       "basisOfRecord",
       c('HUMAN_OBSERVATION', 'OBSERVATION',

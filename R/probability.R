@@ -210,8 +210,8 @@ and_fun <- function(dens.oblist, w = FALSE){
 #' \itemize{
 #'   \item conintkde - 95% Confidence intervals using kernel density distributions, N-CRACLE
 #'   \item conintgauss- 95% Confidence intervals using gaussian density distribution. P-CRACLE
-#'   \item origk - Kernel density optimal interval as in Harbert & Nixon, 2015. Within 1% of the maximal likelihood.
-#'   \item origg - Gaussiandensity optimal interval as in Harbert & Nixon, 2015. Within 1% of the maximal likelihood.
+#'   \item origk - Kernel density optimal interval as in Harbert & Nixon, 2015. Within 1 percent of the maximal likelihood.
+#'   \item origg - Gaussiandensity optimal interval as in Harbert & Nixon, 2015. Within 1 percent of the maximal likelihood.
 #'   \item dirconint - Direct calculation of the gaussian based confidence interval using weighted means. Should be identical to conintgauss.
 #'   \item means - Weighted means, Should be the same as the maximally likely value of the gaussian density curve.
 #'   \item sds - Weighted standard deviation.

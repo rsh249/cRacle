@@ -6,6 +6,7 @@
 \usage{
 gbif_dl(
   taxa,
+  kingdom = "all",
   dir.out = "gbif_dl",
   maxrec = Inf,
   gbif_user = "",
@@ -15,6 +16,8 @@ gbif_dl(
 }
 \arguments{
 \item{taxa}{A string of the form 'genus species' or 'genus', or a vector of several names in this form.}
+
+\item{kingdom}{Specify ONE taxonomic kingdom for this query. Valid strings are "all", or kingdom names as defined in the GBIF taxonomy.}
 
 \item{dir.out}{Path to your output directory}
 
@@ -36,10 +39,10 @@ Set up a GBIF account for access to downloads before using this function. Then y
 your username (gbif_user), password (gbif_pw), and email (gbif_email) to this function OR write them
 to your .Renviron file using:
 
-system('echo "env_gbif_user=\'your_username\'" >> ~/.Renviron')
-system('echo "env_gbif_pw=\'your_password\'" >> ~/.Renviron')
-system('echo "env_gbif_email=\'your_email@gmail.com\'" >> ~/.Renviron')
-source("~/.Renviron")
+system('echo "env_gbif_user=\'your_username\'" >> ~/.Renviron');
+system('echo "env_gbif_pw=\'your_password\'" >> ~/.Renviron');
+system('echo "env_gbif_email=\'your_email@gmail.com\'" >> ~/.Renviron');
+system("source~/.Renviron");
 }
 \examples{
 \dontrun{
